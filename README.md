@@ -4,6 +4,8 @@
 
 Native Windows x64 mapper for the Logitech M720 Triathlon paired via Bluetooth LE (product ID B015).
 
+Logitech manufactures the M720 Triathlon mouse. M720 Mapper is an independent project with no affiliation to Logitech.
+
 | Button | Shortcut |
 | --- | --- |
 | Forward | Ctrl+C |

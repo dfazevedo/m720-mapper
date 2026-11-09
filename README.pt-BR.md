@@ -4,6 +4,8 @@
 
 Remapeador nativo para Windows x64 e Logitech M720 Triathlon pareado via Bluetooth LE, PID B015.
 
+A Logitech fabrica o mouse M720 Triathlon. O M720 Mapper é um projeto independente, sem afiliação com a Logitech.
+
 | Botão | Atalho |
 | --- | --- |
 | Avançar | Ctrl+C |
