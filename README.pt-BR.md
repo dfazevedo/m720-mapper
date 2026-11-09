@@ -65,4 +65,17 @@ ctest --test-dir build -C Release --output-on-failure
 
 A compilação Release vincula o runtime C++ estaticamente. O executável usa as APIs de Bluetooth e entrada do Windows. Os testes cobrem o formato das mensagens, o pareamento de respostas, a ordem e repetição de cliques e o plano de restauração em ordem inversa.
 
-Em uma amostra com os atalhos ativos, o Windows mediu 2,76 MiB de memória privada comprometida e 17,21 MiB residentes, dos quais 15,17 MiB eram páginas compartilhadas. A amostra ficou abaixo da meta de 5 MiB privados e acima da meta de 10 MiB residentes.
+## Medições no Windows
+
+Em um laptop Windows, cada versão foi medida 21 vezes, a cada 30 s, durante 10 minutos em repouso com o mouse conectado. Os totais da versão legada incluem o remapeador e o lançador. A versão nativa medida usa o mesmo código residente da versão publicada.
+
+| Métrica | Legado (dois processos) | Nativo |
+| --- | ---: | ---: |
+| Memória residente, mediana / pico amostrado | 46,094 / 46,262 MiB | 17,348 / 17,496 MiB |
+| Memória privada comprometida, mediana / pico amostrado | 31,762 / 31,836 MiB | 2,957 / 3,168 MiB |
+| Tempo de CPU acumulado em 10 minutos | 0 s | 0,0157 s |
+| Handles abertos, faixa amostrada | 524–526 | 214–222 |
+
+A mediana de memória residente caiu 62% e a de memória privada comprometida caiu 91%. A versão nativa ficou abaixo da meta de 5 MiB privados e acima da meta de 10 MiB residentes. Em uma inspeção separada, 15,17 MiB dos 17,21 MiB residentes eram páginas compartilhadas.
+
+Os testes físicos cobriram dois retornos pelo Easy-Switch e um ciclo de desligar e ligar o mouse. O usuário confirmou os três atalhos. Novo logon do Windows, suspensão e uma sequência de dez ciclos ficaram sem validação.

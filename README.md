@@ -65,6 +65,19 @@ ctest --test-dir build -C Release --output-on-failure
 
 The Release build links the C++ runtime statically. The executable uses Windows system Bluetooth and input APIs. Protocol tests cover packet framing, reply matching, press order and deduplication, and reverse-order restoration planning.
 
-One active Windows sample measured 2.76 MiB of committed private memory and a 17.21 MiB working set. Windows counted 15.17 MiB of that working set as shared pages. This sample met the 5 MiB private-memory target and exceeded the 10 MiB working-set target.
+## Measured on Windows
+
+On one Windows laptop, each version was sampled 21 times at 30-second intervals over 10 minutes while idle with the mouse connected. The legacy totals include its mapper and launcher. The native build measured here uses the same resident code as the release.
+
+| Metric | Legacy (two processes) | Native |
+| --- | ---: | ---: |
+| Working set, median / sampled peak | 46.094 / 46.262 MiB | 17.348 / 17.496 MiB |
+| Committed private memory, median / sampled peak | 31.762 / 31.836 MiB | 2.957 / 3.168 MiB |
+| Process CPU time added over 10 minutes | 0 s | 0.0157 s |
+| Open handles, sampled range | 524–526 | 214–222 |
+
+Median working set fell 62% and median committed private memory fell 91%. The native build met the 5 MiB private-memory target and exceeded the 10 MiB working-set target. In a separate working-set inspection, 15.17 MiB of 17.21 MiB were shared pages.
+
+Hardware checks covered two Easy-Switch returns and one mouse power cycle. The user confirmed the three shortcuts. New Windows sign-in, sleep and a ten-cycle run remain unverified.
 
 Protocol and API references: [Logitech HID++ 2.0](https://github.com/Logitech/cpg-docs/blob/master/hidpp20/README.rst), [feature 0x1B04](https://lekensteyn.nl/files/logitech/x1b04_specialkeysmsebuttons.html), [Microsoft Bluetooth LE](https://learn.microsoft.com/en-us/windows/win32/api/bluetoothleapis/).
