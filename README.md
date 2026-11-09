@@ -35,6 +35,8 @@ From an ordinary PowerShell session, run the release's installer. No administrat
 
 The executable is copied to `%LOCALAPPDATA%\M720Mapper` and registered for the current user in HKCU Run. The installer can migrate the previous version when its original graceful-stop helper is present. It backs up the earlier executable, helpers and startup entry. Use `-RequireActive` to require the mouse to connect and the shortcuts to arm before installation succeeds.
 
+The installer checks `--status` before committing the startup entry. It accepts status 0 or, without `-RequireActive`, status 1. Both scripts abort if an existing instance fails to stop gracefully. If startup fails, the installer attempts to restore the previous files and startup entry from its backup.
+
 ```powershell
 .\scripts\Uninstall-M720Mapper.ps1
 ```
@@ -49,7 +51,7 @@ Uninstall stops the Mapper, removes its executable and clears its startup entry.
 .\M720Mapper.exe --listen 30
 ```
 
-`--diagnose` reads the GATT characteristic. `--probe` queries HID++ and the three reporting states. `--listen` records presses the mouse already diverts, for 1 to 120 seconds. Stop the resident Mapper before `--probe` or `--listen`.
+`--diagnose` reads the GATT characteristic. `--probe` queries HID++ and the three reporting states. `--listen` records presses the mouse already diverts, for 1 to 120 seconds. Stop the resident Mapper before `--probe` or `--listen`. These commands leave button reporting intact. They enable GATT notifications temporarily if needed, then restore the previous notification setting.
 
 Build with Visual Studio Build Tools 2022, MSVC x64, a Windows SDK with C++/WinRT headers, and CMake.
 

@@ -602,6 +602,23 @@ void mapped_session(Transport& transport, HANDLE stop, HANDLE active, const Log&
     if (failure && !transport.lost()) std::rethrow_exception(failure);
 }
 
+void diagnostic_session(Transport& transport, const std::function<void()>& operation) {
+    std::exception_ptr failure;
+    try {
+        transport.ensure_notifications();
+        operation();
+    } catch (...) {
+        failure = std::current_exception();
+    }
+    transport.listener({});
+    try {
+        transport.restore_notifications();
+    } catch (const TransportError& ex) {
+        throw RestoreError(std::format("Could not restore diagnostic GATT notification settings: {}", ex.what()));
+    }
+    if (failure) std::rethrow_exception(failure);
+}
+
 } // namespace
 
 void run_mapper(HANDLE stop, HANDLE active, HANDLE waiting, const Log& log) {
@@ -675,21 +692,24 @@ void diagnose(const Log& log) {
 void probe(const Log& log) {
     auto transport = connect();
     if (!transport) throw TransportError("M720 Bluetooth PID B015 GATT service was not found.");
-    const auto feature = read_feature(*transport, log);
-    read_snapshot(*transport, feature, log);
+    diagnostic_session(*transport, [&] {
+        const auto feature = read_feature(*transport, log);
+        read_snapshot(*transport, feature, log);
+    });
 }
 
 void listen(std::chrono::seconds duration, const Log& log) {
     auto transport = connect();
     if (!transport) throw TransportError("M720 Bluetooth PID B015 GATT service was not found.");
-    const auto feature = read_feature(*transport, log);
-    read_snapshot(*transport, feature, log);
-    transport->listener([buttons = Buttons(feature), &log](const Packet& packet) mutable {
-        for (const auto cid : buttons.update(packet)) if (cid) log(std::format("Pressed CID 0x{:04X}", cid));
+    diagnostic_session(*transport, [&] {
+        const auto feature = read_feature(*transport, log);
+        read_snapshot(*transport, feature, log);
+        transport->listener([buttons = Buttons(feature), &log](const Packet& packet) mutable {
+            for (const auto cid : buttons.update(packet)) if (cid) log(std::format("Pressed CID 0x{:04X}", cid));
+        });
+        log(std::format("Listening for {} seconds. Only already-diverted buttons can appear.", duration.count()));
+        Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()));
     });
-    log(std::format("Listening for {} seconds. Only already-diverted buttons can appear.", duration.count()));
-    Sleep(static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()));
-    transport->listener({});
 }
 
 } // namespace m720

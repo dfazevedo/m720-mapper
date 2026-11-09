@@ -35,6 +35,8 @@ Use o instalador da versão publicada em uma sessão normal do PowerShell.
 
 O script copia o executável para `%LOCALAPPDATA%\M720Mapper` e registra a inicialização do usuário em HKCU Run. Ele pode migrar a versão anterior se o auxiliar de parada original estiver disponível. Guarda uma cópia do binário, dos auxiliares e da entrada anterior. Use `-RequireActive` para exigir que os atalhos estejam ativos antes de confirmar a instalação.
 
+O instalador consulta `--status` antes de confirmar a entrada de inicialização. Ele aceita o código 0 ou, sem `-RequireActive`, o código 1. Os dois scripts interrompem a operação se uma instância existente falhar ao encerrar de forma graciosa. Se a inicialização falhar, o instalador tenta recuperar os arquivos e a entrada anterior a partir do backup.
+
 ```powershell
 .\scripts\Uninstall-M720Mapper.ps1
 ```
@@ -49,7 +51,7 @@ A desinstalação encerra o Mapper, remove seu executável e a entrada de inicia
 .\M720Mapper.exe --listen 30
 ```
 
-`--diagnose` lê a característica GATT. `--probe` consulta o protocolo e o reporting dos três botões. `--listen` registra as pressões já desviadas pelo mouse durante 1 a 120 s. Encerre a instância residente antes de usar `--probe` ou `--listen`.
+`--diagnose` lê a característica GATT. `--probe` consulta o protocolo e o reporting dos três botões. `--listen` registra as pressões já desviadas pelo mouse durante 1 a 120 s. Encerre a instância residente antes de usar `--probe` ou `--listen`. Esses comandos preservam o reporting dos botões. Eles habilitam as notificações GATT temporariamente quando necessário e restauram a configuração anterior.
 
 Use Visual Studio Build Tools 2022, MSVC x64, Windows SDK com cabeçalhos C++/WinRT e CMake.
 
